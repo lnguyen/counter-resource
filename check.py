@@ -13,6 +13,20 @@ session = boto3.session.Session(
     region_name             = source.get('region')
 )
 
+if not (source.get('aws_role_arn')  is None):
+    sts = session.client("sts")
+    response = sts.assume_role(
+        RoleArn=source.get('aws_role_arn'),
+        RoleSessionName="counter-session"
+    )
+    credentials = response['Credentials']
+    # Create a new session using the assumed role credentials
+    session = boto3.Session(
+        aws_access_key_id=credentials['AccessKeyId'],
+        aws_secret_access_key=credentials['SecretAccessKey'],
+        aws_session_token=credentials['SessionToken']
+    )
+    
 obj = session.resource('s3').Object(source['bucket'], source['key'])
 
 try:
@@ -24,5 +38,5 @@ res = []
 for i in range(0, count + 1):
     res.append({'count': str(i)})
 
-print json.dumps(res)
+print(json.dumps(res))
 

@@ -17,5 +17,5 @@ with open(path, 'w') as f:
     f.write(count)
 
 res = {'version': {'count': count } }
-print json.dumps(res)
+print(json.dumps(res))
 
